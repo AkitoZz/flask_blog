@@ -46,7 +46,7 @@ def edit_profile():
         current_user.location = form.location.data
         current_user.about_me = form.about_me.data
         db.session.add(current_user)
-        flash('Your profile has been updated')
+        flash('更人信息已更新')
         return redirect(url_for('.user',username=current_user.username))
     form.name.data = current_user.name
     form.location = current_user.location
@@ -69,7 +69,7 @@ def edit_profile_admin(id):
         user.about_me = form.about_me.data
         db.session.add(user)
         db.session.commit()
-        flash('The profile has been updated.')
+        flash('个人信息已更新.')
         return redirect(url_for('.user', username=user.username))
     form.email.data = user.email
     form.username.data = user.username
@@ -107,7 +107,7 @@ def post(id):
         return redirect(url_for('.post',id=post.id,page=-1))
     page = request.args.get('page',1,type=int)
     if page == -1:
-        page = (post.comments.count() -1 ) / current_app.config['FLASKY_COMMENTS_PER_PAGE'] + 1
+        page = (post.comments.count() -1 ) // current_app.config['FLASKY_COMMENTS_PER_PAGE'] + 1
     pagination = post.comments.order_by(Comment.timestamp.asc()).paginate(page,per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],error_out=False)
     comments = pagination.items        
     return  render_template('post.html',posts=[post],form=form,comments=comments,pagination=pagination)    
@@ -124,7 +124,7 @@ def edit(id):
     if form.validate_on_submit():
         post.body = form.body.data
         db.session.add(post)
-        flash('The post has been updated')
+        flash('博客内容已更新')
         return redirect(url_for('.post',id=post.id))
     form.body.data = post.body
     return render_template('edit_post.html',form=form)

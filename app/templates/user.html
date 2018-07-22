@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 {% import "_macros.html" as macros %}
 
-{% block title %}Flasky - {{ user.username }}{% endblock %}
+{% block title %}Mikazuki - {{ user.username }}{% endblock %}
 
 {% block page_content %}
 <div class="page-header">
-    <img class="img-rounded profile-thumbnail" src="{{ url_for('static',filename='9.jpg') }}" height="256" width="256">
+    {% if user.username == 'mikazuki' %}
+    <img class="img-rounded profile-thumbnail" src="{{ url_for('static',filename='admin.jpg') }}" height="256" width="256">
+    {% else %}
+    <img class="img-rounded profile-thumbnail" src="{{ current_user.gravatar(size=256) }}">
+    {% endif %}
     <div class="profile-header">
         <h1>{{ user.username }}</h1>
         {% if user.name or user.location %}
@@ -20,7 +24,7 @@
         <p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
         {% endif %}
         {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
-        <p>您注册于 {{ moment(user.member_since).format('L') }}. 最近登陆时间： {{ moment(user.last_seen).fromNow() }}.</p>
+        <p>注册于 {{ moment(user.member_since).format('L') }}. 最近登陆时间： {{ moment(user.last_seen).fromNow() }}.</p>
         <p>发表过 {{ user.posts.count() }} 篇博客. {{ user.comments.count() }} 次评论.</p>
         <p>
             {% if user == current_user %}

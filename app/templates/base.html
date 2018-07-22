@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block navbar %}
-<div class="navbar navbar-default" role="navigation" style="background-image:url({{ url_for('static',filename='4.jpg') }});background-position:center;background-size:100%">
+<div class="navbar navbar-default" role="navigation" style="background-image:url({{ url_for('static',filename='nav.jpg') }});background-position:center;background-size:100%">
     <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -33,12 +33,15 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <p>
-                        {#    <img src="{{ current_user.gravatar(size=18) }}"> #}
-                            <img src="{{ url_for('static',filename='9.jpg') }}" height="30" width="30">    
+                        {% if current_user.is_administrator() %}
+                            <img src="{{ url_for('static',filename='admin.jpg') }}" height="30" width="30">    
+                        {% else %}
+                            <img src="{{ current_user.gravatar(size=18) }}">    
+                        {% endif %}    
                             <strong>Account</strong> <b class="caret"></b>
                         </p>    
                     </a>
-                    <ul class="dropdown-menu" style="background-image:url({{ url_for('static',filename='4.jpg') }});background-position:center">
+                    <ul class="dropdown-menu" style="background-image:url({{ url_for('static',filename='nav.jpg') }});background-position:center">
                         <li><a href="{{ url_for('main.edit_profile') }}">Edit Profile</a></li> 
                         <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
                         {% if current_user.is_administrator() %}
@@ -68,7 +71,7 @@
 
 </div>
 
-<nav class="navbar navbar-default navbar-fixed-bottom" style="background-image:url({{ url_for('static',filename='4.jpg') }});background-position:center;background-size:100%">
+<nav class="navbar navbar-default navbar-fixed-bottom" style="background-image:url({{ url_for('static',filename='nav.jpg') }});background-position:center;background-size:100%">
     <div class="container">
         <div class="container-fluid">
             <p class="navbar-text navbar-left"><strong>Powered by <a href="#" class="navbar-link">Mikazuki</a>.Copyright © 2018.</strong></p>

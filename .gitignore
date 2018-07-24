@@ -5,5 +5,5 @@
 *.egg-info
 dist
 build
-
+restart.sh
 *.ini

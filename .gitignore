@@ -8,4 +8,4 @@ build
 restart.sh
 *.ini
 log/*
-
+*.sqlite

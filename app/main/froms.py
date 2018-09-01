@@ -38,7 +38,7 @@ class EditProfileAdminForm(Form):
             raise ValidationError('Username already in use')                    
 
 class PostForm(Form):
-    body = PageDownField("What's on your mind?",validators=[Required()])            
+    body = PageDownField("What's on your mind?",validators=[Required()],render_kw={'class': 'text-body', 'rows': 10, 'placeholder': u'你有什么想法？'})            
     submit = SubmitField('Submit')
 
 class CommentForm(Form):

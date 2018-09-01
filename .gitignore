@@ -10,3 +10,4 @@ restart.sh
 log/*
 *.sqlite
 bak/*
+app/static/*

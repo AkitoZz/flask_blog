@@ -18,7 +18,7 @@
                         {% if posts | length == 1 %}
                             {{ post.body_html | safe}}
                         {% else %}
-                            {{ post.body_html | truncate(100) | safe }}
+                            {{ post.body_html | truncate(120) | safe }}
                         {% endif %}        
                     {% else %}
                         {{ post.body }}

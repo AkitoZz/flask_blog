@@ -5,7 +5,7 @@
 
 {% block page_content %}
 <div class="page-header">
-    {% if user.username == 'mikazuki' %}
+    {% if user.username == 'Mikazuki' %}
     <img class="img-rounded profile-thumbnail" src="{{ url_for('static',filename='admin.jpg') }}" height="256" width="256">
     {% else %}
     <img class="img-rounded profile-thumbnail" src="{{ current_user.gravatar(size=256) }}">

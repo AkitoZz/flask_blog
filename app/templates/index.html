@@ -16,7 +16,7 @@ style="padding-bottom: 70px;background-image:url({{ url_for('static',filename='5
     <h1>Hello, {% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}!</h1>
     <h5>与怪物战斗的人，应当小心自己不要成为怪物。当你远远凝视深渊时，深渊也在凝视你</h5>
 </div>
-<div>
+<div class="post-content">
     {% if current_user.can(Permission.WRITE_ARTICLES) %}
     {{ wtf.quick_form(form) }}
     {% endif %}

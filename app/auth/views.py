@@ -1,3 +1,4 @@
+#coding:utf-8
 from flask import render_template,redirect,request,url_for,flash
 from . import auth
 from .forms import LoginForm,RegistrationForm
@@ -6,6 +7,7 @@ from flask_login import login_user,logout_user,login_required,current_user
 from .. import db
 from ..email import send_email
 
+#login_user函数会回调User模型中装饰的load_user函数，并将其加到session中，这个考虑session多加一个token
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()

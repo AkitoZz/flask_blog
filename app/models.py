@@ -3,15 +3,32 @@ from werkzeug.security import generate_password_hash,check_password_hash
 from flask_login import UserMixin,AnonymousUserMixin
 from . import login_manager
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from flask import current_app
+from flask import current_app,request,url_for,session,g
 from datetime import datetime
 import hashlib
 from markdown import markdown
 import bleach
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
+@login_manager.request_loader
+def load_user_from_request(request):
+    print("[debug][request_loader]%s",request)
+    return None
+
+
+#修改回调函数，返回值同样是user类，只是默认使用user_id查询，现改为使用token获取
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    print("[debug][token]%s" %(user_id))
+    user = User.verify_auth_token(user_id)
+    print("[debug][userid]%s"%(user))
+    print("[debug][session%s]"%(session))
+    return user
+
+# @login_manager.user_loader
+# def load_user(user_id):
+#     print("[debug][session]%s" %(session))
+#     return User.query.get(int(user_id))
 
 class Permission:
     FOLLOW = 0x01
@@ -73,6 +90,7 @@ class User(UserMixin,db.Model):
 
     posts = db.relationship('Post',backref='author',lazy='dynamic')
     comments = db.relationship('Comment',backref='author',lazy='dynamic')
+    todolist = db.relationship('Todolist',backref='author',lazy='dynamic')
 
     avatar_hash = db.Column(db.String(32))
 
@@ -85,6 +103,11 @@ class User(UserMixin,db.Model):
                 self.role = Role.query.filter_by(default=True).first()
         if self.email is not None and self.avatar_hash is None:
             self.avatar_hash = self.gravatar_hash()                
+
+
+#loginmanager中的login_user()会调用Usermixin类中的get_id方法返回User类中的id，此处定义后会调用这个方法，返回token
+    def get_id(self):
+        return self.generate_auth_token(3600)
 
     def ping(self):
         self.last_seen = datetime.utcnow()
@@ -180,6 +203,19 @@ class User(UserMixin,db.Model):
             except IntegrityError:
                 db.session.rollback()
 
+    def generate_auth_token(self,expiration):
+        s = Serializer(current_app.config['SECRET_KEY'],expires_in=expiration)
+        return s.dumps({'id': self.id}).decode('utf-8')
+
+    @staticmethod
+    def verify_auth_token(token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return None
+        return User.query.get(data['id'])    
+
 class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer,primary_key=True)
@@ -215,6 +251,18 @@ class Post(db.Model):
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
 
+    def to_json(self):
+        json_post = {
+            'url': url_for('api.get_post', id=self.id),
+            'body': self.body,
+            'body_html': self.body_html,
+            'timestamp': self.timestamp,
+            'author_url': url_for('api.get_user', id=self.author_id),
+            'comments_url': url_for('api.get_post_comments', id=self.id),
+            'comment_count': self.comments.count()
+        }
+        return json_post
+
 db.event.listen(Post.body, 'set', Post.on_changed_body)
 
 class AnonymouseUser(AnonymousUserMixin):
@@ -243,6 +291,26 @@ class Comment(db.Model):
             tags=allowed_tags, strip=True))
 
 db.event.listen(Comment.body, 'set', Comment.on_changed_body)
+
+class Todolist(db.Model):
+    __tablename__ = 'todolist'
+    id = db.Column(db.Integer,primary_key=True)
+    user_id = db.Column(db.Integer,db.ForeignKey('users.id'))
+    title = db.Column(db.String(64),unique=True)
+    desp = db.Column(db.Text)
+    s_time = db.Column(db.String(64))
+    e_time = db.Column(db.String(64))
+    status = db.Column(db.Boolean,default=False)
+
+    def to_json(self):
+        json_todolist = {
+            'user_id':self.user_id,
+            'title':self.title,
+            'desp':self.desp,
+            's_time':self.s_time,
+            'e_time':self.e_time,
+        }
+        return json_todolist
 
 login_manager.anonymous_user = AnonymouseUser        
 

@@ -10,17 +10,22 @@ from markdown import markdown
 import bleach
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
-@login_manager.request_loader
-def load_user_from_request(request):
-    print("[debug][request_loader]%s",request)
-    return None
+#暂时发现只有跳转的时候会触发这个回调
+# @login_manager.request_loader
+# def load_user_from_request(request):
+#     print("[debug][request_loader][header]",request.headers.get('token'))
+#     print('[debug][request_loader][g]',g,g.current_user)
+#     return None
 
 
-#修改回调函数，返回值同样是user类，只是默认使用user_id查询，现改为使用token获取
+#修改回调函数，返回值同样是user类，只是默认使用user_id查询，现改为使用token获取,并将用户存到g中
+# 对api的请求而言，用户存储放在api蓝本认证处理中，也会设置g，以便后续获取数据
 @login_manager.user_loader
 def load_user(user_id):
     print("[debug][token]%s" %(user_id))
     user = User.verify_auth_token(user_id)
+    g.current_user = user
+    print('[debug][g]',g.current_user   )
     print("[debug][userid]%s"%(user))
     print("[debug][session%s]"%(session))
     return user
@@ -107,7 +112,7 @@ class User(UserMixin,db.Model):
 
 #loginmanager中的login_user()会调用Usermixin类中的get_id方法返回User类中的id，此处定义后会调用这个方法，返回token
     def get_id(self):
-        return self.generate_auth_token(3600)
+        return self.generate_auth_token(expiration=43200)
 
     def ping(self):
         self.last_seen = datetime.utcnow()
@@ -304,11 +309,13 @@ class Todolist(db.Model):
 
     def to_json(self):
         json_todolist = {
+            'id':self.id,
             'user_id':self.user_id,
             'title':self.title,
             'desp':self.desp,
             's_time':self.s_time,
             'e_time':self.e_time,
+            'status':self.status,
         }
         return json_todolist
 

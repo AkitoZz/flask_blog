@@ -7,4 +7,3 @@ dist
 build
 *.sqlite
 *.ini
-config.py

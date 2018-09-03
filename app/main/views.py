@@ -161,7 +161,7 @@ def moderate_disable(id):
     return redirect(url_for('.moderate',
                             page=request.args.get('page', 1, type=int)))    
 
-#@main.route('/todolist')                            
-#@login_required
-#def todolist():
-#    return redirect('http://akazuki.cn/todolist')
+@main.route('/todolist')                            
+@login_required
+def todolist():
+    return redirect('http://akazuki.cn/todolist/')
